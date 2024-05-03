@@ -1,0 +1,80 @@
+Testcase: com.example.weblab3.dbUtils.CheckAreaDAOImplTest
+Test: testGetAllResults() took 5 milli sec(s) FAILED: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+org.opentest4j.AssertionFailedError: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:58)
+	at org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3228)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.testGetAllResults(CheckAreaDAOImplTest.java:49)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getAllResults(CheckAreaDAOImpl.java:79)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.lambda$testGetAllResults$2(CheckAreaDAOImplTest.java:49)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+	... 6 more
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getAllResults(CheckAreaDAOImpl.java:73)
+	... 8 more
+Caused by: java.lang.ExceptionInInitializerError: Exception java.lang.ExceptionInInitializerError [in thread "main"]
+	at com.example.weblab3.dbUtils.HibernateUtils.<clinit>(HibernateUtils.java:22)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getAllResults(CheckAreaDAOImpl.java:73)
+	at com.example.weblab3.beans.ResultManager.<init>(ResultManager.java:23)
+	at com.example.weblab3.beans.ResultManagerTest.testAddResults(ResultManagerTest.java:17)
+	... 3 more
+
+Test: testAddNewResult() took 2 milli sec(s) FAILED: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+org.opentest4j.AssertionFailedError: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:53)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:36)
+	at org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3168)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.testAddNewResult(CheckAreaDAOImplTest.java:30)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.addNewResult(CheckAreaDAOImpl.java:24)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.lambda$testAddNewResult$0(CheckAreaDAOImplTest.java:30)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:49)
+	... 6 more
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.addNewResult(CheckAreaDAOImpl.java:18)
+	... 8 more
+Caused by: java.lang.ExceptionInInitializerError: Exception java.lang.ExceptionInInitializerError [in thread "main"]
+	at com.example.weblab3.dbUtils.HibernateUtils.<clinit>(HibernateUtils.java:22)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getAllResults(CheckAreaDAOImpl.java:73)
+	at com.example.weblab3.beans.ResultManager.<init>(ResultManager.java:23)
+	at com.example.weblab3.beans.ResultManagerTest.testAddResults(ResultManagerTest.java:17)
+	... 3 more
+
+Test: testGetResultById() took 1 milli sec(s) FAILED: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+org.opentest4j.AssertionFailedError: Unexpected exception thrown: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:75)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:58)
+	at org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3228)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.testGetResultById(CheckAreaDAOImplTest.java:44)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: java.sql.SQLException: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getResultById(CheckAreaDAOImpl.java:59)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImplTest.lambda$testGetResultById$1(CheckAreaDAOImplTest.java:44)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:71)
+	... 6 more
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.example.weblab3.dbUtils.HibernateUtils
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getResultById(CheckAreaDAOImpl.java:55)
+	... 8 more
+Caused by: java.lang.ExceptionInInitializerError: Exception java.lang.ExceptionInInitializerError [in thread "main"]
+	at com.example.weblab3.dbUtils.HibernateUtils.<clinit>(HibernateUtils.java:22)
+	at com.example.weblab3.dbUtils.CheckAreaDAOImpl.getAllResults(CheckAreaDAOImpl.java:73)
+	at com.example.weblab3.beans.ResultManager.<init>(ResultManager.java:23)
+	at com.example.weblab3.beans.ResultManagerTest.testAddResults(ResultManagerTest.java:17)
+	... 3 more
+
+Tests run: 3, Failures: 3, Skipped: 0, Aborted: 0, Time elapsed: 8 milli sec(s)

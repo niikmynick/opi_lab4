@@ -1,0 +1,7 @@
+Testcase: com.example.weblab3.beans.ResultManagerTest
+Tests run: 4, Failures: 0, Skipped: 0, Aborted: 0, Time elapsed: 32 milli sec(s)
+------------- Standard Output ---------------
+AreaCheckerBean{id=0, x=-1.0, y=1.0, r=1.0, status=false, requestTime=15:20:52 04.04.2024, scriptTime=626833}
+AreaCheckerBean{id=0, x=-2.0, y=1.0, r=1.0, status=false, requestTime=15:20:52 04.04.2024, scriptTime=7679458}
+AreaCheckerBean{id=0, x=4.0, y=1.0, r=1.0, status=false, requestTime=15:20:52 04.04.2024, scriptTime=7776833}
+------------- ---------------- ---------------

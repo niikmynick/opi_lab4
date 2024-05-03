@@ -1,0 +1,488 @@
+<?xml version="1.0"?>
+<project name="web-lab3" basedir=".">
+    <property file="build.properties"/>
+
+    <!--    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />-->
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="./ant-contrib-1.0b3.jar" />
+        </classpath>
+    </taskdef>
+
+    <path id="classpath">
+        <fileset dir="${ext.libs.dir}" includes="**/*.jar"/>
+        <pathelement location="${build.dir}"/>
+    </path>
+
+
+    <property name="message" value="" />
+
+
+
+    <target name="init">
+        <exec executable="git">
+            <arg line="init"/>
+        </exec>
+        <exec executable="svnadmin">
+            <arg line="create --fs-type fsfs ${vcs.svn.repo.dir}"/>
+        </exec>
+
+        <path id="repo.path">
+            <pathelement location="${basedir}/${vcs.svn.repo.dir}"/>
+        </path>
+        <pathconvert property="repo.url" refid="repo.path">
+            <map from="\\" to="/"/>
+            <map from=":" to=""/>
+        </pathconvert>
+        <exec executable="svn">
+            <arg line="checkout file:///${repo.url} ${vcs.svn.checkout.dir}"/>
+        </exec>
+
+    </target>
+
+
+
+    <!--    compile - компиляция исходных кодов проекта    -->
+    <!--    done    -->
+    <target name="compile">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac destdir="${build.classes.dir}"
+               includeantruntime="false"
+               srcdir="${src.dir}"
+               debug="on">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+
+    <!--    build - компиляция и упаковка в исполняемый jar-архив (вызов цели compile)    -->
+    <!--    done    -->
+    <target name="build" depends="compile">
+        <jar destfile="${build.jar}" basedir="${build.classes.dir}" compress="false" index="true">
+            <manifest />
+        </jar>
+
+        <war destFile="${build.war}" webxml="${project.web.xml}">
+            <fileset dir="${project.web.dir}" />
+            <lib dir="${build.dir}">
+                <include name="${build.jar}" />
+            </lib>
+        </war>
+
+        <if>
+            <not>
+                <equals arg1="${message}" arg2="" />
+            </not>
+
+            <then>
+                <echo message="${message}" />
+            </then>
+        </if>
+    </target>
+
+
+
+    <!--    clean - удаление скомпилированных классов проекта и всех временных файлов (если они есть)    -->
+    <!--    done    -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${checksums.dir}"/>
+        <delete dir="${team.dir}"/>
+    </target>
+
+
+
+    <!--    test - запуск junit-тестов проекта. Перед запуском тестов необходимо осуществить сборку проекта (цель build)    -->
+    <!--    done    -->
+    <target name="test" depends="build">
+        <tstamp>
+            <format property="timestamp" pattern="MM.dd.yyyy_hh:mm_aa"/>
+        </tstamp>
+
+        <echo message="Running tests..."/>
+
+        <mkdir dir="${test.results.dir}/${timestamp}"/>
+
+        <junitlauncher printsummary="yes">
+            <classpath refid="classpath"/>
+            <classpath>
+                <pathelement location="${build.classes.dir}"/>
+            </classpath>
+
+            <testclasses outputdir="${test.results.dir}/${timestamp}">
+                <fileset dir="${build.classes.dir}" >
+                    <include name="**/*Test.class" />
+                </fileset>
+
+                <listener type="legacy-brief" sendSysOut="true"/>
+                <listener type="legacy-xml" sendSysErr="true" sendSysOut="true"/>
+            </testclasses>
+        </junitlauncher>
+
+        <echo message="Tests run successfully!"/>
+    </target>
+
+
+
+    <!--    docs for doc target    -->
+    <target name="javadoc" depends="compile">
+        <javadoc destdir="${build.docs.dir}">
+            <fileset dir="${src.dir}" includes="**/*.java"/>
+            <doctitle>${ant.project.name}</doctitle>
+            <classpath refid="classpath"/>
+        </javadoc>
+        <echo message="Javadoc generated successfully!"/>
+    </target>
+
+    <!--    sum checking    -->
+    <target name="md5">
+        <mkdir dir="${checksums.dir}"/>
+        <checksum todir="${checksums.dir}" algorithm="MD5">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </checksum>
+    </target>
+
+    <!--    another sum checking    -->
+    <target name="sha1">
+        <mkdir dir="${checksums.dir}"/>
+        <checksum todir="${checksums.dir}" algorithm="SHA-1">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </checksum>
+    </target>
+
+    <!--    total sum checking     -->
+    <target name="checksums">
+        <echo message="Generating checksums..."/>
+
+        <trycatch>
+            <try>
+                <antcall target="md5" />
+
+                <concat destfile="${checksums.md5.file}">
+                    <fileset dir="${checksums.dir}" includes="**/*.MD5"/>
+                </concat>
+
+                <checksum file="${checksums.md5.file}" property="md5"/>
+
+                <echo message="MD5 checksum generated successfully!"/>
+            </try>
+            <catch>
+                <echo message="Error generating MD5 checksum"/>
+            </catch>
+        </trycatch>
+
+        <trycatch>
+            <try>
+                <antcall target="sha1" />
+
+                <concat destfile="${checksums.sha1.file}">
+                    <fileset dir="${checksums.dir}" includes="**/*.SHA-1"/>
+                </concat>
+
+                <checksum file="${checksums.sha1.file}" property="sha1"/>
+
+                <echo message="SHA-1 checksum generated successfully!"/>
+            </try>
+
+            <catch>
+                <echo message="Error generating SHA1 checksum"/>
+            </catch>
+        </trycatch>
+    </target>
+
+    <!--    doc - добавление в MANIFEST.MF MD5 и SHA-1 файлов проекта, а также генерация и добавление в архив javadoc по всем классам проекта    -->
+    <!--    done    -->
+    <target name="doc" depends="javadoc, checksums">
+        <echo message="Adding checksums to MANIFEST.MF..."/>
+
+        <manifest file="MANIFEST.MF">
+            <attribute name="MD5" value="${md5}"/>
+            <attribute name="SHA-1" value="${sha1}"/>
+        </manifest>
+    </target>
+
+
+
+    <!--    native2ascii - преобразование native2ascii для копий файлов локализации (для тестирования сценария все строковые параметры необходимо вынести из классов в файлы локализации)    -->
+    <!--    done    -->
+    <target name="native2ascii">
+        <native2ascii encoding="UTF8" src="${i18n.dir}" dest="${ascii.dir}" includes="*.properties"/>
+    </target>
+
+
+
+    <!--    xml - валидация всех xml-файлов в проекте    -->
+    <!--    done    -->
+    <target name="xml">
+        <xmlvalidate failonerror="no" lenient="yes">
+            <fileset dir="${project.dir}" includes="**/*.xml"/>
+        </xmlvalidate>
+    </target>
+
+
+
+    <!--    music - воспроизведение музыки по завершению сборки (цель build)    -->
+    <!--    done    -->
+    <target name="music" depends="build">
+        <sound>
+            <success source="${music.wav}" duration="20000"/> <!-- 20 секунд -->
+            <fail source="${music.wav}" duration="20000"/>
+        </sound>
+    </target>
+
+
+
+    <!--    scp - перемещение собранного проекта по scp на выбранный сервер по завершению сборки. Предварительно необходимо выполнить сборку проекта (цель build)    -->
+    <!--    done    -->
+    <target name="scp" depends="build">
+        <sshexec
+                host="${scp.host}"
+                port="${scp.port}"
+                username="${scp.user}"
+                password="${scp.password}"
+                command="mkdir -p ${scp.dir}"
+                trust="true"
+        />
+        <scp
+                file="${build.war}"
+                todir="${scp.user}@${scp.host}:${scp.dir}"
+                password="${scp.password}"
+                port="${scp.port}"
+                trust="true"
+        />
+    </target>
+
+
+
+    <!--    alt - создаёт альтернативную версию программы с измененными именами переменных и классов (используя задание replace/replaceregexp в файлах параметров) и упаковывает её в jar-архив. Для создания jar-архива использует цель build    -->
+    <!--    done    -->
+    <target name="alt">
+        <copy todir="${src.temp.dir}">
+            <fileset dir="${src.dir}"/>
+        </copy>
+
+        <replace dir="${src.dir}" >
+            <exclude name="**/*.jar"/>
+            <replacefilter token="${src.user.naming}"
+                           value="${alt.user.naming}"/>
+        </replace>
+
+        <replace dir="${src.dir}">
+            <exclude name="**/*.jar"/>
+            <replacefilter token="${src.area.naming}"
+                           value="${alt.area.naming}"/>
+        </replace>
+
+        <replace dir="${src.dir}" >
+            <exclude name="**/*.jar"/>
+            <replacefilter token="${src.bean.naming}"
+                           value="${alt.bean.naming}"/>
+        </replace>
+
+
+        <move todir="${src.dir}" includeemptydirs="false">
+            <fileset dir="${src.dir}">
+                <exclude name="**/*.jar"/>
+            </fileset>
+            <filtermapper >
+                <replacestring from="${src.user.naming}" to="${alt.user.naming}" />
+                <replacestring from="${src.area.naming}" to="${alt.area.naming}" />
+                <replacestring from="${src.bean.naming}" to="${alt.bean.naming}" />
+            </filtermapper>
+        </move>
+
+        <antcall target="clean"/>
+        <antcall target="build"/>
+
+        <delete dir="${src.dir}"/>
+
+        <copy todir="${src.dir}">
+            <fileset dir="${src.temp.dir}"/>
+        </copy>
+
+        <delete dir="${src.temp.dir}"/>
+    </target>
+
+
+
+    <!--    team - осуществляет получение из svn-репозитория 4 предыдущих ревизий, их сборку (по аналогии с основной) и упаковку получившихся jar-файлов в zip-архив. Сборку реализовать посредством вызова цели build    -->
+    <!--    done    -->
+    <target name="team">
+        <mkdir dir="${team.dir}"/>
+
+        <property name="revision" value="HEAD"/>
+
+        <for list="1,2,3,4" param="i">
+            <sequential>
+                <exec executable="svn" dir="${vcs.svn.checkout.dir}">
+                    <arg line="update -r ${revision}"/>
+                </exec>
+
+                <antcall target="build"/>
+
+                <move file="${build.jar}" tofile="${build.dir}/build-@{i}.jar" />
+                <move file="${build.dir}/build-@{i}.jar" todir="${team.dir}" />
+                <property name="revision" value="PREV"/>
+            </sequential>
+        </for>
+        <echo message="Last revision: ${revision}"/>
+        <zip destfile="${team.zip}" basedir="${team.dir}" />
+    </target>
+
+
+
+    <!--    history - если проект не удаётся скомпилировать (цель compile), загружается предыдущая версия из репозитория git. Операция повторяется до тех пор, пока проект не удастся собрать, либо не будет получена самая первая ревизия из репозитория. Если такая ревизия найдена, то формируется файл, содержащий результат операции diff для всех файлов, измёненных в ревизии, следующей непосредственно за последней работающей    -->
+    <!--    done    -->
+    <target name="history">
+        <exec executable="git" outputproperty="git.head_revision">
+            <arg line="rev-parse HEAD"/>
+        </exec>
+        <exec executable="git" outputproperty="git.tail_revision">
+            <arg line="rev-list --max-parents=0 HEAD"/>
+        </exec>
+
+        <echo message="Head revision: ${git.head_revision}"/>
+        <echo message="Tail revision: ${git.tail_revision}"/>
+
+        <var name="git.new_revision" unset="true"/>
+        <exec executable="git" outputproperty="git.new_revision">
+            <arg line="rev-parse HEAD~1"/>
+        </exec>
+
+        <trycatch>
+            <try>
+                <antcall target="compile"/>
+                <var name="compile.successful" unset="true"/>
+                <property name="compile.successful" value="true"/>
+                <echo message="Project compiled successfully!"/>
+
+                <sequential>
+                    <exec executable="git" outputproperty="diff_output">
+                        <arg line="diff ${git.head_revision} ${git.new_revision}"/>
+                    </exec>
+                    <echo file="diff_output.txt" message="${diff_output}"/>
+                </sequential>
+
+            </try>
+            <catch>
+                <echo message="Project compilation failed!"/>
+                <echo message="Checkout revision: ${git.new_revision}"/>
+                <exec executable="git" dir="${project.dir}">
+                    <arg line="reset --hard ${git.new_revision}"/>
+                </exec>
+                <var name="compile.successful" unset="true"/>
+                <property name="compile.successful" value="false"/>
+                <if>
+                    <equals arg1="${git.new_revision}" arg2="${git.tail_revision}"/>
+                    <then>
+                        <echo message="No more revisions to checkout"/>
+                    </then>
+                    <else>
+                        <runtarget target="history"/>
+                    </else>
+                </if>
+            </catch>
+        </trycatch>
+
+        <exec executable="git" dir="${project.dir}">
+            <arg line="checkout ${git.head_revision}"/>
+        </exec>
+    </target>
+
+
+    <!--    diff - осуществляет проверку состояния рабочей копии, и, если изменения касаются классов, указанных в файле параметров выполняет commit в репозиторий git    -->
+    <!--    done    -->
+    <target name="diff">
+        <exec executable="git" outputproperty="vcs.git.diff_output">
+            <arg value="diff" />
+            <arg value="--name-only" />
+        </exec>
+
+        <condition property="vcs.git.should_commit" value="true">
+            <resourcecount count="0">
+                <intersect>
+                    <filelist id="vcs.git.files_to_commit" files="${vcs.git.diff_output}"/>
+                    <filelist files="${vcs.git.diff_classes}" />
+                </intersect>
+            </resourcecount>
+        </condition>
+
+        <echoproperties prefix="vcs" />
+
+        <pathconvert property="vcs.git.files_to_commit_separated" refid="vcs.git.files_to_commit" pathsep=" " />
+
+        <if>
+            <isset property="vcs.git.should_commit" />
+
+            <then>
+                <tstamp>
+                    <format property="timestamp" pattern="MM.dd.yyyy hh:mm:ss aa"/>
+                </tstamp>
+
+                <exec executable="git">
+                    <arg value="add"/>
+                    <arg line="${vcs.git.files_to_commit_separated}" />
+                </exec>
+
+                <exec executable="git">
+                    <arg value="commit" />
+                    <arg value="-m" />
+                    <arg value="Commit changes from ${timestamp}" />
+                </exec>
+
+                <echo message="Committing changes"/>
+            </then>
+
+            <else>
+                <echo message="No changes to commit"/>
+            </else>
+        </if>
+    </target>
+
+
+
+    <!--    env - осуществляет сборку и запуск программы в альтернативных окружениях; окружение задается версией java и набором аргументов виртуальной машины в файле параметров    -->
+    <!--    done    -->
+    <target name="env" depends="build">
+        <java jar="${build.war}" fork="true">
+            <jvmarg line="${jvm.params}"/>
+        </java>
+    </target>
+
+
+    <!--    report - в случае успешного прохождения тестов сохраняет отчет junit в формате xml, добавляет его в репозиторий svn и выполняет commit    -->
+    <!--    done    -->
+    <target name="report" depends="test">
+        <tstamp>
+            <format property="timestamp" pattern="MM.dd.yyyy_hh:mm_aa"/>
+        </tstamp>
+
+        <mkdir dir="${test.results.dir}/report_${timestamp}"/>
+
+        <junitreport todir="${test.results.dir}/report_${timestamp}">
+            <fileset dir="${test.results.dir}/${timestamp}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+        </junitreport>
+
+        <copy todir="${vcs.svn.checkout.dir}/test">
+            <fileset dir="${test.results.dir}"/>
+        </copy>
+
+        <exec executable="svn" dir="${vcs.svn.checkout.dir}">
+            <arg line="add test/report_${timestamp}"/>
+        </exec>
+
+        <exec executable="svn" dir="${vcs.svn.checkout.dir}">
+            <arg line="commit -m 'Commit test report from Ant'"/>
+        </exec>
+    </target>
+
+</project>
