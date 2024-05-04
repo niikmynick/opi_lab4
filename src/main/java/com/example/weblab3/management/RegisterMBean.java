@@ -2,13 +2,14 @@ package com.example.weblab3.management;
 
 public interface RegisterMBean {
 
-    public int get_total();
-    public int get_missed();
-    public void increment_total_points();
-    public void increment_missed_points();
+    int get_total();
+    int get_missed();
+    double get_ratio();
+    void increment_total_points();
+    void increment_missed_points();
 
-    public void sendNotification();
+    void sendNotification();
 
-    public void setRatio();
+    void updateRatio();
 
 }
