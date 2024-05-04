@@ -3,6 +3,7 @@ package com.example.weblab3.beans;
 import com.example.weblab3.management.Register;
 import com.example.weblab3.utils.AreaChecker;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import java.sql.SQLException;
@@ -18,6 +19,9 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class ResultManager {
     private LinkedList<AreaCheckerBean> results = new LinkedList<>();
+
+    @Inject
+    private Register register;
 
     public ResultManager() {
         try {
@@ -37,7 +41,7 @@ public class ResultManager {
     }
 
     @Transactional
-    public void addResults(UserRequest userRequest, Register register) {
+    public void addResults(UserRequest userRequest) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         String requestTime = dateFormat.format(new Date(System.currentTimeMillis()));
@@ -76,17 +80,17 @@ public class ResultManager {
         for (Hit hit : hits) {
             AreaCheckerBean currentResult = new AreaCheckerBean();
 
-            if (operateHit(requestTime, startTime, currentResult, hit)) {
-                register.increment_total_points();
-                if (!results.getFirst().getStatus()) {
-                    register.increment_missed_points();
-                }
+            operateHit(requestTime, startTime, currentResult, hit);
+
+            register.increment_total_points();
+            if (!results.getFirst().getStatus()) {
+                register.increment_missed_points();
             }
         }
     }
 
     @Transactional
-    public void addResultFromGraph(UserRequest userRequest, Register register) {
+    public void addResultFromGraph(UserRequest userRequest) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         String requestTime = dateFormat.format(new Date(System.currentTimeMillis()));
@@ -96,15 +100,16 @@ public class ResultManager {
 
         Hit hit = new Hit(userRequest.getX(), userRequest.getY(), userRequest.getR());
 
-        if (operateHit(requestTime, startTime, currentResult, hit)) {
-            register.increment_total_points();
-            if (!results.getFirst().getStatus()) {
-                register.increment_missed_points();
-            }
+        operateHit(requestTime, startTime, currentResult, hit);
+
+        register.increment_total_points();
+
+        if (!results.getFirst().getStatus()) {
+            register.increment_missed_points();
         }
     }
 
-    private boolean operateHit(String requestTime, long startTime, AreaCheckerBean currentResult, Hit hit) {
+    private void operateHit(String requestTime, long startTime, AreaCheckerBean currentResult, Hit hit) {
         currentResult.setX( hit.getX() );
         currentResult.setY( hit.getY() );
         currentResult.setR( hit.getR() );
@@ -115,15 +120,15 @@ public class ResultManager {
         currentResult.setScriptTime( System.nanoTime() - startTime );
 
         System.out.println(currentResult);
+
+        results.addFirst( currentResult );
+
         try {
             DAOFactory.getInstance().getResultDAO().addNewResult( currentResult );
         } catch (SQLException ex) {
             System.err.println("Something went wrong when trying add new result to DB: " + ex);
-            return false;
         }
 
-        results.addFirst( currentResult );
-        return true;
     }
 
     @Transactional
