@@ -1,5 +1,6 @@
 package com.example.weblab3.beans;
 
+import com.example.weblab3.management.Register;
 import com.example.weblab3.utils.AreaChecker;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
@@ -36,7 +37,7 @@ public class ResultManager {
     }
 
     @Transactional
-    public void addResults(UserRequest userRequest, MBean mBean) {
+    public void addResults(UserRequest userRequest, Register register) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         String requestTime = dateFormat.format(new Date(System.currentTimeMillis()));
@@ -76,16 +77,16 @@ public class ResultManager {
             AreaCheckerBean currentResult = new AreaCheckerBean();
 
             if (operateHit(requestTime, startTime, currentResult, hit)) {
-                mBean.increment_total_points();
+                register.increment_total_points();
                 if (!results.getFirst().getStatus()) {
-                    mBean.increment_missed_points();
+                    register.increment_missed_points();
                 }
             }
         }
     }
 
     @Transactional
-    public void addResultFromGraph(UserRequest userRequest, MBean mBean) {
+    public void addResultFromGraph(UserRequest userRequest, Register register) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         String requestTime = dateFormat.format(new Date(System.currentTimeMillis()));
@@ -96,9 +97,9 @@ public class ResultManager {
         Hit hit = new Hit(userRequest.getX(), userRequest.getY(), userRequest.getR());
 
         if (operateHit(requestTime, startTime, currentResult, hit)) {
-            mBean.increment_total_points();
+            register.increment_total_points();
             if (!results.getFirst().getStatus()) {
-                mBean.increment_missed_points();
+                register.increment_missed_points();
             }
         }
     }
