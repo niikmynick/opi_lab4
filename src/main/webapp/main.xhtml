@@ -142,7 +142,7 @@
 <!--                </div>-->
 
 
-                <h:commandButton id="tryHit" value="Submit" action="#{resultManager.addResults(userRequest, mBean)}">
+                <h:commandButton id="tryHit" value="Submit" action="#{resultManager.addResults(userRequest)}">
                     <f:ajax execute="@form" render="results-table"/>
 <!--                    <f:ajax execute="#{svgBean.updateSVG(resultManager.results.get(0))}" render="graph-svg"/>-->
                 </h:commandButton>
@@ -157,7 +157,7 @@
 
             <h:inputHidden id="r-value-hidden" value="${userRequest.r}"/>
 
-            <h:commandButton id="tryHitHidden" value="Submit" action="#{resultManager.addResultFromGraph(userRequest, mBean)}">
+            <h:commandButton id="tryHitHidden" value="Submit" action="#{resultManager.addResultFromGraph(userRequest)}">
                 <f:ajax execute="@form" render="results-table"/>
             </h:commandButton>
         </h:form>
